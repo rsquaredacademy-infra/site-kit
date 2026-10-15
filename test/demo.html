@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rsquared Site-Kit — Demo &amp; Verification</title>
+  
+  <!-- Rsquared Site-Kit Consent Stylesheet -->
+  <link rel="stylesheet" href="../rsa-consent.css">
+  
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      color: #0F172A;
+      background-color: #F8FAFC;
+      margin: 0;
+      padding: 2rem 1.5rem 8rem 1.5rem; /* bottom padding so banner does not obscure content */
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        color: #F8FAFC;
+        background-color: #0F172A;
+      }
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 2px solid #E2E8F0;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      margin: 0 0 0.5rem 0;
+      color: #2563EB;
+      font-size: 1.75rem;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.625rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: #E0E7FF;
+      color: #3730A3;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    @media (prefers-color-scheme: dark) {
+      .card {
+        background: #1E293B;
+        border-color: #334155;
+      }
+    }
+    .status-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.5rem;
+    }
+    .status-table td {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #F1F5F9;
+    }
+    @media (prefers-color-scheme: dark) {
+      .status-table td {
+        border-bottom-color: #334155;
+      }
+    }
+    .status-table td:first-child {
+      font-weight: 600;
+      width: 40%;
+    }
+    .code-val {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.875rem;
+      background: #F1F5F9;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+    }
+    @media (prefers-color-scheme: dark) {
+      .code-val {
+        background: #0F172A;
+      }
+    }
+    .btn {
+      display: inline-block;
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      border: 1px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #0F172A;
+      text-decoration: none;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .btn-danger {
+      background: #FEE2E2;
+      color: #991B1B;
+      border-color: #FCA5A5;
+    }
+    .instructions {
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+    .instructions ol {
+      padding-left: 1.25rem;
+    }
+  </style>
+
+  <!-- Rsquared Site-Kit Analytics Script with Dummy GA4 ID -->
+  <script src="../rsa-analytics.js" data-ga-id="G-DUMMY12345" async></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <span class="badge">Phase A Verification</span>
+      <h1>Rsquared Site-Kit v1.0.0 Demo</h1>
+      <p>Manual testing harness for Google Analytics 4 Consent Mode v2 and region-based consent banner.</p>
+    </header>
+
+    <section class="card">
+      <h2>Diagnostics &amp; State</h2>
+      <table class="status-table">
+        <tr>
+          <td>Detected Time Zone:</td>
+          <td><span id="tz-display" class="code-val">Detecting...</span></td>
+        </tr>
+        <tr>
+          <td>Region Category:</td>
+          <td><span id="region-display" class="code-val">Detecting...</span></td>
+        </tr>
+        <tr>
+          <td>Stored Consent Cookie:</td>
+          <td><span id="cookie-display" class="code-val">None</span></td>
+        </tr>
+        <tr>
+          <td>Expected Banner Status:</td>
+          <td><span id="banner-expected" class="code-val">Calculating...</span></td>
+        </tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Interactive Actions</h2>
+      <p>Test the consent and opt-out interactions below:</p>
+      
+      <!-- Opt-out element triggers data-rsa-analytics-optout -->
+      <button type="button" class="btn btn-danger" data-rsa-analytics-optout>
+        Opt out of Analytics (data-rsa-analytics-optout button)
+      </button>
+
+      <a href="#" class="btn" data-rsa-analytics-optout>
+        Opt-out link (data-rsa-analytics-optout anchor)
+      </a>
+
+      <button type="button" class="btn" id="btn-clear-cookie">
+        Clear Cookie &amp; Reload
+      </button>
+    </section>
+
+    <section class="card instructions">
+      <h2>Manual Testing Guide</h2>
+      <ol>
+        <li>
+          <strong>Testing European Visitor Behavior:</strong>
+          In Chrome DevTools, press <kbd>Ctrl+Shift+P</kbd> (or <kbd>Cmd+Shift+P</kbd>), type <em>Sensors</em>, and choose <strong>Show Sensors</strong>. Under <em>Location</em>, select <strong>London</strong> or <strong>Berlin</strong>. Click <strong>Clear Cookie &amp; Reload</strong> above. The bottom banner dialog will appear.
+        </li>
+        <li>
+          <strong>Testing Keyboard Accessibility:</strong>
+          When the banner appears, focus is set to the dialog. Press <kbd>Tab</kbd> to cycle between Decline and Accept. Press <kbd>Escape</kbd> to verify it declines consent and closes the dialog.
+        </li>
+        <li>
+          <strong>Testing Non-European Visitor Behavior:</strong>
+          In the Sensors panel, choose <strong>New York</strong>, <strong>Tokyo</strong>, or <strong>Off</strong> (default). Clear cookie and reload. Notice that no banner is displayed, and GA4 consent default remains granted.
+        </li>
+        <li>
+          <strong>Testing Opt-Out Link:</strong>
+          Click the "Opt out of Analytics" button above. Notice the confirmation toast appears and the cookie is set to <code>rsa_consent=denied</code>.
+        </li>
+      </ol>
+    </section>
+  </div>
+
+  <script>
+    function updateDiagnostics() {
+      let tz = 'Unknown';
+      try {
+        tz = Intl.DateTimeFormat().resolvedOptions().timeZone || 'Unknown';
+      } catch (e) {}
+
+      document.getElementById('tz-display').textContent = tz;
+
+      const isEurope = tz.startsWith('Europe/') ||
+        tz === 'Atlantic/Canary' ||
+        tz === 'Atlantic/Madeira' ||
+        tz === 'Atlantic/Reykjavik';
+
+      const regionSpan = document.getElementById('region-display');
+      regionSpan.textContent = isEurope ? 'Europe / EEA (Banner applicable)' : 'Rest of World (Consent granted)';
+      regionSpan.style.color = isEurope ? '#2563EB' : '#059669';
+
+      const cookieMatch = document.cookie.match(/(?:^|;\s*)rsa_consent=(granted|denied)(?:;|$)/);
+      const cookieVal = cookieMatch ? cookieMatch[1] : 'None (No choice stored)';
+      document.getElementById('cookie-display').textContent = cookieVal;
+
+      const shouldShow = isEurope && !cookieMatch;
+      const expectedSpan = document.getElementById('banner-expected');
+      expectedSpan.textContent = shouldShow ? 'Banner Should Show' : 'Banner Suppressed';
+      expectedSpan.style.color = shouldShow ? '#D97706' : '#64748B';
+    }
+
+    document.getElementById('btn-clear-cookie').addEventListener('click', function() {
+      // Clear rsa_consent cookie on root and host
+      document.cookie = 'rsa_consent=; Path=/; Max-Age=0';
+      document.cookie = 'rsa_consent=; Path=/; Domain=.rsquaredacademy.com; Max-Age=0';
+      document.cookie = 'rsa_consent=; Path=/; Domain=.aravindhebbali.com; Max-Age=0';
+      window.location.reload();
+    });
+
+    // Update diagnostics periodically and on events
+    updateDiagnostics();
+    setInterval(updateDiagnostics, 1000);
+  </script>
+</body>
+</html>
