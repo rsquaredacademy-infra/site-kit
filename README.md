@@ -91,8 +91,8 @@ Or configure directly inline:
 template:
   includes:
     in_header: |
-      <link rel="stylesheet" href="site-kit/rsa-consent.css">
-      <script src="site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
+      <link rel="stylesheet" href="/site-kit/rsa-consent.css">
+      <script src="/site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
 ```
 
 ### Plain HTML & Static Sites
