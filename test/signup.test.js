@@ -384,10 +384,11 @@ describe('site-kit v1.1.0 sign-up unit tests', () => {
       'parseZohoResponse',
       'isValidEmail',
       'isLikelyBot',
-      'defaultSiteLabel'
+      'defaultSiteLabel',
+      'pickFormParts'
     ];
 
-    test('exposes exactly the seven v1.1.0 public names', () => {
+    test('exposes the v1.1.0 names plus pickFormParts', () => {
       const names = Object.keys(require('../rsa-signup.js')).sort();
       assert.deepStrictEqual(names, EXPECTED_EXPORTS.slice().sort());
     });
@@ -401,12 +402,6 @@ describe('site-kit v1.1.0 sign-up unit tests', () => {
         Object.keys(first).sort(),
         Object.keys(second).sort()
       );
-    });
-
-    test('exposes the picker to tests without widening the export list', () => {
-      const mod = require('../rsa-signup.js');
-      assert.strictEqual(typeof mod.pickFormParts, 'function');
-      assert.ok(!Object.keys(mod).includes('pickFormParts'));
     });
   });
 

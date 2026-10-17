@@ -633,17 +633,9 @@
     parseZohoResponse,
     isValidEmail,
     isLikelyBot,
-    defaultSiteLabel
+    defaultSiteLabel,
+    pickFormParts
   };
-
-  // Expose the pure picker for unit tests without widening the public export
-  // surface: it is non-enumerable, so `Object.keys` stays the same seven names.
-  Object.defineProperty(api, 'pickFormParts', {
-    value: pickFormParts,
-    enumerable: false,
-    writable: false,
-    configurable: false
-  });
 
   return api;
 });
