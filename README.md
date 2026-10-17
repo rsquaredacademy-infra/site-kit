@@ -100,7 +100,7 @@ Pages that inject containers after load can call `window.RsaSignup.init()`; alre
 
 ## 5. How to Vendor Into Each Platform
 
-Copy `rsa-analytics.js` and `rsa-consent.css` into your repository's static assets directory (e.g., `site-kit/`).
+Copy `rsa-analytics.js` and `rsa-consent.css` into your repository's static assets directory (e.g., `site-kit/`). Sites that show the sign-up form also copy `rsa-signup.js` and `rsa-signup.css`, add the two extra tags below, add `https://zgnp-zngp.maillist-manage.com` to the CSP `connect-src` (see `CSP.md`), and place `<div data-rsa-signup></div>` where the form should appear.
 
 ### Quarto Websites & Books
 
@@ -119,6 +119,9 @@ Header snippet content:
 ```html
 <link rel="stylesheet" href="/site-kit/rsa-consent.css">
 <script src="/site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
+<!-- sign-up sites only: -->
+<link rel="stylesheet" href="/site-kit/rsa-signup.css">
+<script src="/site-kit/rsa-signup.js" defer></script>
 ```
 
 ### pkgdown Documentation Sites
@@ -139,6 +142,9 @@ template:
     in_header: |
       <link rel="stylesheet" href="/site-kit/rsa-consent.css">
       <script src="/site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
+<!-- sign-up sites only: -->
+<link rel="stylesheet" href="/site-kit/rsa-signup.css">
+<script src="/site-kit/rsa-signup.js" defer></script>
 ```
 
 ### Plain HTML & Static Sites
@@ -147,6 +153,9 @@ Add these two tags inside `<head>`:
 ```html
 <link rel="stylesheet" href="/site-kit/rsa-consent.css">
 <script src="/site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
+<!-- sign-up sites only: -->
+<link rel="stylesheet" href="/site-kit/rsa-signup.css">
+<script src="/site-kit/rsa-signup.js" defer></script>
 ```
 
 Add an opt-out link in your footer or privacy policy page:

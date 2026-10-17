@@ -398,6 +398,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         if (!isValidEmail(email)) {
           setStatus(MESSAGE.invalid, 'error');
           emailField.input.setAttribute('aria-invalid', 'true');
+          emailField.input.setAttribute('aria-describedby', statusId);
           try {
             emailField.input.focus();
           } catch (e) {
@@ -407,6 +408,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
         }
 
         emailField.input.removeAttribute('aria-invalid');
+        emailField.input.removeAttribute('aria-describedby');
         button.disabled = true;
         setStatus(MESSAGE.pending, null);
 
