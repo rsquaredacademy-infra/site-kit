@@ -2,7 +2,7 @@
 
 Shared analytics, consent, and funnel toolkit for [Rsquared Academy](https://rsquaredacademy.com) websites and [Aravind Hebbali](https://aravindhebbali.com) web properties.
 
-**Version:** `v1.0.0` (Phase A: GA4 + region-based Consent Mode v2)
+**Version:** `v1.1.0` (Phase A: GA4 + region-based Consent Mode v2 · Phase B: Zoho Campaigns email sign-up)
 
 ---
 
@@ -17,11 +17,57 @@ Phase A provides:
 - **Cross-subdomain cookie persistence:** Stores consent choice in a 180-day cookie scoped to the registrable root domain (`.rsquaredacademy.com` or `.aravindhebbali.com`), ensuring visitors make their choice once across all subdomains.
 - **Universal opt-out hook:** Any element with `data-rsa-analytics-optout` immediately revokes analytics consent and displays a confirmation notification.
 
-*(Phase B will introduce the email newsletter sign-up component integrated with Zoho Campaigns).*
+---
+
+## 2. Email Sign-up (Phase B)
+
+`rsa-signup.js` + `rsa-signup.css` add a dependency-free newsletter sign-up card that posts straight to **Zoho Campaigns** with `fetch` — no third-party Zoho script, no inline JavaScript, and no `'unsafe-inline'` needed.
+
+### Container Markup
+
+Drop a container anywhere in the page body; whatever fallback markup the author puts inside is replaced when the script runs:
+
+```html
+<div data-rsa-signup></div>
+```
+
+### Container Attributes (all optional)
+
+| Attribute | Default | Purpose |
+|---|---|---|
+| `data-site` | hostname + first path segment | Value stored in the Zoho **Signup site** custom field (`CONTACT_CF1`). |
+| `data-heading` | `Get updates from Rsquared Academy` | Card heading text. |
+| `data-text` | `New courses, eBook chapters and R package releases. Free. Unsubscribe any time.` | Short supporting paragraph. |
+| `data-button` | `Subscribe` | Submit button label. |
+| `data-name` | shown | Set to `off` to hide the optional first-name field. |
+| `data-privacy-url` | `/privacy/` | Target of the small "Privacy" link under the form. |
+| `data-heading-level` | `h2` | Set to `p` to render the heading as a paragraph instead. |
+
+### What the Visitor Sees
+
+A compact card with a heading, one line of copy, a labelled email field, an optional first-name field, a Subscribe button and a small Privacy link. On submit the component validates the address, disables the button, then shows the outcome inline in a polite live region:
+
+- **New contact:** "Almost done: check your inbox for a confirmation email." (form is reset)
+- **Existing contact:** "You're already subscribed. Thank you!"
+- **Error:** "Sorry, that didn't work. Please try again in a minute."
+
+**Double opt-in** is enabled in Zoho, so Zoho sends the confirmation email; a contact only becomes active once they click the link.
+
+A hidden honeypot field and a 2-second minimum fill time silently reject obvious bots without contacting Zoho.
+
+### GA4 `sign_up` Event
+
+On a successful **new** sign-up the component calls `gtag('event', 'sign_up', { method: 'zoho_campaigns', signup_site: <site> })` when `window.gtag` is available. Google Consent Mode already governs storage, so the component does not check consent itself. The email address and name are **never** sent to Google.
+
+### Where the Contact Lands
+
+Contacts are added to the Zoho Campaigns list **"Rsquared Academy Updates"**, tagged with the site they signed up on in the **Signup site** field (`CONTACT_CF1`).
+
+Pages that inject containers after load can call `window.RsaSignup.init()`; already-rendered containers are marked with `data-rsa-signup-ready` and skipped.
 
 ---
 
-## 2. Consent Behavior in Plain Words
+## 3. Consent Behavior in Plain Words
 
 1. **Non-European visitors (worldwide):**
    - If the visitor's time zone is outside Europe (e.g., `America/New_York`, `Asia/Kolkata`, `Australia/Sydney`), **no banner is displayed**.
@@ -43,7 +89,7 @@ Phase A provides:
 
 ---
 
-## 3. Brand Measurement IDs
+## 4. Brand Measurement IDs
 
 | Property | Measurement ID | Target Sites |
 |---|---|---|
@@ -52,9 +98,9 @@ Phase A provides:
 
 ---
 
-## 4. How to Vendor Into Each Platform
+## 5. How to Vendor Into Each Platform
 
-Copy `rsa-analytics.js` and `rsa-consent.css` into your repository's static assets directory (e.g., `site-kit/`).
+Copy `rsa-analytics.js` and `rsa-consent.css` into your repository's static assets directory (e.g., `site-kit/`). Sites that show the sign-up form also copy `rsa-signup.js` and `rsa-signup.css`, add the two extra tags below, add `https://zgnp-zngp.maillist-manage.com` to the CSP `connect-src` (see `CSP.md`), and place `<div data-rsa-signup></div>` where the form should appear.
 
 ### Quarto Websites & Books
 
@@ -73,6 +119,9 @@ Header snippet content:
 ```html
 <link rel="stylesheet" href="/site-kit/rsa-consent.css">
 <script src="/site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
+<!-- sign-up sites only: -->
+<link rel="stylesheet" href="/site-kit/rsa-signup.css">
+<script src="/site-kit/rsa-signup.js" defer></script>
 ```
 
 ### pkgdown Documentation Sites
@@ -93,6 +142,9 @@ template:
     in_header: |
       <link rel="stylesheet" href="/site-kit/rsa-consent.css">
       <script src="/site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
+<!-- sign-up sites only: -->
+<link rel="stylesheet" href="/site-kit/rsa-signup.css">
+<script src="/site-kit/rsa-signup.js" defer></script>
 ```
 
 ### Plain HTML & Static Sites
@@ -101,6 +153,9 @@ Add these two tags inside `<head>`:
 ```html
 <link rel="stylesheet" href="/site-kit/rsa-consent.css">
 <script src="/site-kit/rsa-analytics.js" data-ga-id="G-2QSPEL5WM6" async></script>
+<!-- sign-up sites only: -->
+<link rel="stylesheet" href="/site-kit/rsa-signup.css">
+<script src="/site-kit/rsa-signup.js" defer></script>
 ```
 
 Add an opt-out link in your footer or privacy policy page:
@@ -110,14 +165,14 @@ Add an opt-out link in your footer or privacy policy page:
 
 ---
 
-## 5. Privacy Policy & CSP Documentation
+## 6. Privacy Policy & CSP Documentation
 
 - **Privacy Policy Statement:** See [`privacy-snippet.md`](./privacy-snippet.md) for the exact paragraph to add to site privacy policy pages.
 - **Content Security Policy:** See [`CSP.md`](./CSP.md) for required directives (`script-src`, `connect-src`, `img-src`) and Netlify header examples.
 
 ---
 
-## 6. Testing & Quality Checks
+## 7. Testing & Quality Checks
 
 ### Run Unit Tests
 ```bash
@@ -140,6 +195,6 @@ Open `test/demo.html` in a web browser. Use Chrome DevTools &rarr; *Sensors* to 
 
 ---
 
-## 7. License
+## 8. License
 
 MIT &copy; 2026 Rsquared Academy / Aravind Hebbali. See [`LICENSE`](./LICENSE).
