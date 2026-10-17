@@ -2,7 +2,7 @@
 <!--
   Rsquared Site-Kit — Email Sign-up Demo
 
-  WARNING: Submitting either form below sends a REAL sign-up to Zoho
+  WARNING: Submitting any form below sends a REAL sign-up to Zoho
   Campaigns and triggers a REAL confirmation email to the address entered.
   Use an address you control.
 -->
@@ -51,11 +51,57 @@
     .spacer {
       margin-top: 2rem;
     }
+    /* Author-supplied styles for the "enhance mode" example below. The kit
+       does not style or add classes to a form it enhances. */
+    .author-signup {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-width: 28rem;
+      padding: 1.25rem;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      background: #FFFFFF;
+    }
+    @media (prefers-color-scheme: dark) {
+      .author-signup {
+        border-color: #334155;
+        background: #0F172A;
+      }
+    }
+    .author-signup label {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+    .author-signup input[type="email"] {
+      min-height: 44px;
+      padding: 0.625rem 0.75rem;
+      font: inherit;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+    }
+    .author-signup button[type="submit"] {
+      min-height: 44px;
+      padding: 0.625rem 1.25rem;
+      font: inherit;
+      font-weight: 600;
+      color: #FFFFFF;
+      background: #2563EB;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .author-signup .rsa-signup__status--error {
+      color: #B91C1C;
+    }
+    .author-signup .rsa-signup__status--success {
+      color: #15803D;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Rsquared Site-Kit v1.1.0 Sign-up Demo</h1>
+    <h1>Rsquared Site-Kit v1.2.0 Sign-up Demo</h1>
     <p class="warning">
       Submitting a form below sends a <strong>real</strong> sign-up to Zoho
       Campaigns and a <strong>real</strong> confirmation email. Use an address
@@ -75,6 +121,39 @@
          data-site="demo-2">
       <h2>Subscribe (no name field)</h2>
       <p>Fallback content shown only when JavaScript is disabled.</p>
+    </div>
+
+    <!-- Third example: enhance mode. The kit keeps this markup and the
+         .author-signup styles above; it only adds the submission logic.
+         rsa-signup.css is not needed for this form. -->
+    <div class="spacer">
+      <h2>Enhance mode</h2>
+      <form class="author-signup"
+            data-rsa-signup
+            data-site="demo-enhance"
+            novalidate>
+        <label for="enhance-email">Email address</label>
+        <input id="enhance-email"
+               name="email"
+               type="email"
+               autocomplete="email"
+               required>
+
+        <!-- Honeypot: hidden by the host page, the kit adds none in this mode -->
+        <div hidden>
+          <label for="enhance-website">Website</label>
+          <input id="enhance-website"
+                 name="website"
+                 type="text"
+                 tabindex="-1"
+                 autocomplete="off"
+                 data-rsa-signup-hp>
+        </div>
+
+        <button type="submit">Subscribe</button>
+
+        <p data-rsa-signup-status>No spam. Unsubscribe any time.</p>
+      </form>
     </div>
   </div>
 
