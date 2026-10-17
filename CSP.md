@@ -24,11 +24,21 @@ style-src:    'self'
 
 ---
 
-## Phase B Preview (Zoho Campaigns Sign-up Form)
+## Phase B Directives (Zoho Campaigns Sign-up)
 
-> **Note:** As of the 2026-10-15 brief update, sign-up forms in Phase B use **Zoho Campaigns** (replacing listmonk). Once Phase B is deployed, the CSP will require Zoho's endpoints for form submission:
-> - `form-action`: `https://*.zohocampaigns.com` (or Zoho's configured hosted endpoint)
-> - `connect-src`: Zoho API / form submission endpoint
+`rsa-signup.js` submits with `fetch`, so it needs only a `connect-src` origin. No `form-action` is required (there is no native form POST) and no Zoho `script-src` is needed (no Zoho script is ever loaded).
+
+```http
+connect-src: https://zgnp-zngp.maillist-manage.com
+```
+
+### Directive Breakdown
+
+| Directive | Required Origin | Purpose |
+|---|---|---|
+| `connect-src` | `https://zgnp-zngp.maillist-manage.com` | Allows the simple CORS `fetch` POST to the Zoho Campaigns quick-form endpoint (`/weboptin.zc`). |
+| `form-action` | *not needed* | The sign-up uses `fetch`, not a native form submission. |
+| `script-src` | *not needed* | No Zoho JavaScript is loaded. |
 
 ---
 
@@ -38,7 +48,7 @@ style-src:    'self'
 
 ```http
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://www.googletagmanager.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://zgnp-zngp.maillist-manage.com; img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com; style-src 'self' 'unsafe-inline';
 ```
 
 ### HTML Meta Tag (`<head>`)
@@ -47,7 +57,7 @@ style-src:    'self'
 <meta http-equiv="Content-Security-Policy" content="
   default-src 'self';
   script-src 'self' https://www.googletagmanager.com;
-  connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com;
+  connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com https://zgnp-zngp.maillist-manage.com;
   img-src 'self' data: https://*.google-analytics.com https://*.googletagmanager.com;
   style-src 'self' 'unsafe-inline';
 ">
