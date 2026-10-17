@@ -7,7 +7,8 @@ const {
   parseZohoResponse,
   isValidEmail,
   isLikelyBot,
-  defaultSiteLabel
+  defaultSiteLabel,
+  pickFormParts
 } = require('../rsa-signup.js');
 
 // Builds a realistic Zoho HTML response around a JSON island, encoding every
@@ -372,6 +373,94 @@ describe('site-kit v1.1.0 sign-up unit tests', () => {
       assert.strictEqual(defaultSiteLabel(undefined, undefined), '');
       assert.strictEqual(defaultSiteLabel('', '/x'), '');
       assert.strictEqual(defaultSiteLabel('host.example', 123), 'host.example');
+    });
+  });
+
+  describe('module exports', () => {
+    const EXPECTED_EXPORTS = [
+      'ZOHO_ENDPOINT',
+      'ZOHO_HIDDEN_FIELDS',
+      'buildSignupBody',
+      'parseZohoResponse',
+      'isValidEmail',
+      'isLikelyBot',
+      'defaultSiteLabel',
+      'pickFormParts'
+    ];
+
+    test('exposes the v1.1.0 names plus pickFormParts', () => {
+      const names = Object.keys(require('../rsa-signup.js')).sort();
+      assert.deepStrictEqual(names, EXPECTED_EXPORTS.slice().sort());
+    });
+
+    test('requiring the file twice returns the same export names', () => {
+      const first = require('../rsa-signup.js');
+      const resolved = require.resolve('../rsa-signup.js');
+      delete require.cache[resolved];
+      const second = require('../rsa-signup.js');
+      assert.deepStrictEqual(
+        Object.keys(first).sort(),
+        Object.keys(second).sort()
+      );
+    });
+  });
+
+  describe('pickFormParts', () => {
+    // Minimal fake form: it only needs `querySelector`, so these tests run
+    // without a DOM library.
+    function fakeForm(map) {
+      return {
+        querySelector(selector) {
+          return Object.prototype.hasOwnProperty.call(map, selector)
+            ? map[selector]
+            : null;
+        }
+      };
+    }
+
+    test('returns the first matching element for each hook', () => {
+      const emailInput = { id: 'email' };
+      const nameInput = { id: 'name' };
+      const honeypotInput = { id: 'hp' };
+      const button = { id: 'button' };
+      const statusEl = { id: 'status' };
+      const parts = pickFormParts(
+        fakeForm({
+          'input[type="email"]': emailInput,
+          '[data-rsa-signup-name]': nameInput,
+          '[data-rsa-signup-hp]': honeypotInput,
+          'button[type="submit"], input[type="submit"]': button,
+          '[data-rsa-signup-status]': statusEl
+        })
+      );
+      assert.strictEqual(parts.emailInput, emailInput);
+      assert.strictEqual(parts.nameInput, nameInput);
+      assert.strictEqual(parts.honeypotInput, honeypotInput);
+      assert.strictEqual(parts.button, button);
+      assert.strictEqual(parts.statusEl, statusEl);
+    });
+
+    test('returns null for every missing optional element', () => {
+      const emailInput = { id: 'email' };
+      const parts = pickFormParts(fakeForm({ 'input[type="email"]': emailInput }));
+      assert.strictEqual(parts.emailInput, emailInput);
+      assert.strictEqual(parts.nameInput, null);
+      assert.strictEqual(parts.honeypotInput, null);
+      assert.strictEqual(parts.button, null);
+      assert.strictEqual(parts.statusEl, null);
+    });
+
+    test('returns all nulls for a non-form object', () => {
+      const empty = {
+        emailInput: null,
+        nameInput: null,
+        honeypotInput: null,
+        button: null,
+        statusEl: null
+      };
+      for (const bad of [null, undefined, 0, 'form', {}, { querySelector: 1 }]) {
+        assert.deepStrictEqual(pickFormParts(bad), empty);
+      }
     });
   });
 });

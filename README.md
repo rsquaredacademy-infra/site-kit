@@ -2,7 +2,7 @@
 
 Shared analytics, consent, and funnel toolkit for [Rsquared Academy](https://rsquaredacademy.com) websites and [Aravind Hebbali](https://aravindhebbali.com) web properties.
 
-**Version:** `v1.1.0` (Phase A: GA4 + region-based Consent Mode v2 · Phase B: Zoho Campaigns email sign-up)
+**Version:** `v1.2.0` (Phase A: GA4 + region-based Consent Mode v2 · Phase B: Zoho Campaigns email sign-up · enhance an existing form)
 
 ---
 
@@ -42,6 +42,39 @@ Drop a container anywhere in the page body; whatever fallback markup the author 
 | `data-name` | shown | Set to `off` to hide the optional first-name field. |
 | `data-privacy-url` | `/privacy/` | Target of the small "Privacy" link under the form. |
 | `data-heading-level` | `h2` | Set to `p` to render the heading as a paragraph instead. |
+
+### Enhance an Existing Form
+
+If a site already has an approved, design-system sign-up band, don't let the kit draw its own card: put `data-rsa-signup` on the existing `<form>` and the kit keeps the author's markup and styles, wiring up only the validation, Zoho submission, inline message and GA4 event.
+
+```html
+<form data-rsa-signup data-site="edusite" novalidate>
+  <label for="news-email">Email address</label>
+  <input id="news-email" type="email" name="email" autocomplete="email" required>
+
+  <!-- Optional first-name field -->
+  <input type="text" name="firstName" data-rsa-signup-name>
+
+  <!-- Optional honeypot; hide it yourself, the kit adds none -->
+  <div hidden>
+    <input type="text" name="website" tabindex="-1" autocomplete="off" data-rsa-signup-hp>
+  </div>
+
+  <button type="submit">Subscribe</button>
+
+  <!-- Optional; created and appended by the kit if absent -->
+  <p data-rsa-signup-status>No spam. Unsubscribe any time.</p>
+</form>
+```
+
+- The kit **does not** style the form or add a class; the host page's CSS owns the look, so `rsa-signup.css` is **not** needed.
+- The kit **does not** add its own honeypot in this mode (it would be visible without the kit styles); supply one with `data-rsa-signup-hp` if you want the check.
+- Only `data-site` is read from the form; `data-heading`, `data-text`, `data-button`, `data-name` and `data-privacy-url` are ignored.
+- The three hooks are all optional: `data-rsa-signup-name` (first name), `data-rsa-signup-hp` (honeypot) and `data-rsa-signup-status` (live region). The email input is the form's first `input[type="email"]`; without one the form is left untouched.
+- The status element is given an id, `role="status"` and `aria-live="polite"` automatically. Style its states with `.rsa-signup__status--error` and `.rsa-signup__status--success`, the same classes the rendered card uses.
+- Submitting behaves exactly as in render mode (same messages, error/success classes, `sign_up` event), including the 2-second minimum fill time, measured from when the script attaches to the form.
+
+The script creates **no globals** except `window.RsaSignup` (its `init()` method).
 
 ### What the Visitor Sees
 
