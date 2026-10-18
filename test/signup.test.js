@@ -159,6 +159,32 @@ describe('site-kit v1.1.0 sign-up unit tests', () => {
       assert.ok(result.raw);
     });
 
+    test('treats spmSubmit with a confirmation-link page as pending (2026-10-18)', () => {
+      const html =
+        buildIslandResponse({
+          listId: '1723149000000049285',
+          spmSubmit: true,
+          emailid: 'a+test@b.com',
+          isNewContact: false
+        }) +
+        '<div id="THANKS_PAGE_BODY">Welcome to Rsquared Academy You have successfully ' +
+        'subscribed to our organization. We have sent a confirmation link to your ' +
+        'email address.</div>';
+      const result = parseZohoResponse(html);
+      assert.strictEqual(result.ok, true);
+      assert.strictEqual(result.isNew, true);
+    });
+
+    test('keeps spmSubmit with an email but no confirmation text a failure', () => {
+      const html = buildIslandResponse({
+        spmSubmit: true,
+        emailid: 'a@b.com',
+        isNewContact: false
+      });
+      const result = parseZohoResponse(html);
+      assert.strictEqual(result.ok, false);
+    });
+
     test('decodes HTML entities in the island, including &amp;', () => {
       const html =
         'x##ZCJSONSTART##{&#34;spmSubmit&#34;:false,' +

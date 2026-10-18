@@ -1,6 +1,6 @@
 /**
  * Rsquared Academy Site-Kit — Email Sign-up (Phase B)
- * Version: v1.2.0
+ * Version: v1.2.1
  *
  * Dependency-free email newsletter sign-up that posts straight to Zoho
  * Campaigns with a simple CORS `fetch` request (no Zoho script), renders the
@@ -110,7 +110,11 @@
    * `##ZCJSONSTART##` and `##ZCJSON##`, with double quotes encoded as `&#34;`.
    * A successful response has `spmSubmit: false` and a non-empty `emailid`;
    * `isNewContact` distinguishes a brand-new contact from an existing one.
-   * Anything unparseable, missing the island, or carrying an error flag returns
+   * Zoho also answers `spmSubmit: true` with a non-empty `emailid` and its
+   * "We have sent a confirmation link" page when an address that has not yet
+   * confirmed signs up again (seen 2026-10-18): that is a success still waiting
+   * for confirmation, so it reports `ok: true, isNew: true`. Anything
+   * unparseable, missing the island, or carrying an error flag returns
    * `ok: false`. This function never throws.
    *
    * @param {*} text
@@ -139,6 +143,12 @@
       }
       const hasEmail =
         typeof raw.emailid === 'string' && raw.emailid.trim().length > 0;
+      const rest = text.slice(0, startIndex) + text.slice(endIndex + endMarker.length);
+      const pendingConfirmation =
+        hasEmail && raw.spmSubmit === true && /confirmation link/i.test(rest);
+      if (pendingConfirmation) {
+        return { ok: true, isNew: true, raw };
+      }
       const ok = hasEmail && !raw.spmSubmit;
       return { ok, isNew: ok && raw.isNewContact === true, raw };
     } catch (e) {

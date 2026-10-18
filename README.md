@@ -2,7 +2,7 @@
 
 Shared analytics, consent, and funnel toolkit for [Rsquared Academy](https://rsquaredacademy.com) websites and [Aravind Hebbali](https://aravindhebbali.com) web properties.
 
-**Version:** `v1.2.0` (Phase A: GA4 + region-based Consent Mode v2 · Phase B: Zoho Campaigns email sign-up · enhance an existing form)
+**Version:** `v1.2.1` (Phase A: GA4 + region-based Consent Mode v2 · Phase B: Zoho Campaigns email sign-up · enhance an existing form)
 
 ---
 
