@@ -625,7 +625,8 @@
       function markSignupDone() {
         if (!experimentName) return;
         signupDone = true;
-        writeStored(SIGNUP_DONE_KEY, '1');
+        // Consent-region visitors ('none') get no experiment storage at all.
+        if (variant !== 'none') writeStored(SIGNUP_DONE_KEY, '1');
         const bar = document.querySelector('[data-rsa-signup-layout="bar"]');
         if (bar) bar.removeAttribute('data-rsa-signup-bar-visible');
       }
@@ -1057,7 +1058,7 @@
 
       // Sticky bar render mode (variant B only). Not a modal: no overlay, no
       // focus trap, no focus move. The close button is a real 44x44 target.
-      function buildBar(site) {
+      function buildBar(site, onSuccess) {
         const renderedAt = Date.now();
         instanceCounter += 1;
         const uid = 'rsa-signup-' + instanceCounter;
@@ -1119,7 +1120,7 @@
           site: site,
           startedAt: renderedAt,
           variant: variantLabel,
-          onSuccess: markSignupDone
+          onSuccess: onSuccess
         });
 
         return { bar: bar, close: close };
@@ -1132,13 +1133,21 @@
         if (signupDone) return;
         if (isBarDismissed(readStored(BAR_DISMISSED_KEY), Date.now())) return;
 
-        const ui = buildBar(site);
-        document.body.appendChild(ui.bar);
-
         let dismissed = false;
         let cardInView = false;
         let hasScrolled = false;
         let framePending = false;
+        // Set after a sign-up from the bar itself: the bar then stays open,
+        // ignoring scroll and the end card, so the visitor can read the
+        // confirmation until they close it.
+        let completed = false;
+
+        const ui = buildBar(site, function () {
+          completed = true;
+          signupDone = true;
+          if (variant !== 'none') writeStored(SIGNUP_DONE_KEY, '1');
+        });
+        document.body.appendChild(ui.bar);
 
         function hide() {
           ui.bar.removeAttribute('data-rsa-signup-bar-visible');
@@ -1151,6 +1160,7 @@
 
         function update() {
           framePending = false;
+          if (completed) return;
           if (dismissed || signupDone || cardInView) {
             hide();
             return;
@@ -1216,6 +1226,7 @@
                 }
               }
               cardInView = visible.length > 0;
+              if (completed) return;
               if (cardInView) {
                 hide();
               } else if (hasScrolled) {
