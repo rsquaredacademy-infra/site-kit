@@ -2,7 +2,7 @@
 
 Shared analytics, consent, and funnel toolkit for [Rsquared Academy](https://rsquaredacademy.com) websites and [Aravind Hebbali](https://aravindhebbali.com) web properties.
 
-**Version:** `v1.2.0` (Phase A: GA4 + region-based Consent Mode v2 · Phase B: Zoho Campaigns email sign-up · enhance an existing form)
+**Version:** `v1.3.0` (Phase A: GA4 + region-based Consent Mode v2 · Phase B: Zoho Campaigns email sign-up · eBook margin box + A/B sticky bar)
 
 ---
 
@@ -76,6 +76,55 @@ If a site already has an approved, design-system sign-up band, don't let the kit
 
 The script creates **no globals** except `window.RsaSignup` (its `init()` method).
 
+### eBook Margin Box & A/B Sticky Bar (v1.3.0, opt-in)
+
+Quarto books keep the end-of-chapter card and can add two v1.3.0 behaviours from the `<script>` tag alone — no book markup changes:
+
+```html
+<script src="/site-kit/rsa-signup.js"
+        data-rsa-signup-quarto-margin
+        data-rsa-signup-experiment="ebook-bar-v1"
+        defer></script>
+```
+
+| Script attribute | Effect |
+|---|---|
+| `data-rsa-signup-quarto-margin` | Appends a compact sign-up box (short heading, email field only, button, privacy link, status) inside `#quarto-margin-sidebar`, under the TOC. Hidden below 992px, so phones only see the end card. Uses the same `data-site` as the page's first `[data-rsa-signup]`, else the default site label. |
+| `data-rsa-signup-experiment="<name>"` | Assigns the visitor to variant **A** or **B**, tags every sign-up with the variant, and for **B** adds the dismissible sticky bar. |
+
+**A (control):** end-of-chapter card + margin box. **B:** A + the sticky bar.
+
+With **neither** attribute the component behaves exactly as v1.2.0.
+
+#### Variant assignment
+
+- `assignVariant(randomNumber)` returns `'A'` below `0.5` and `'B'` from `0.5`.
+- The choice is stored in `localStorage` under `rsa_signup_exp_<name>` (for example `rsa_signup_exp_ebook-bar-v1`) and reused on later page views. A stored value that is not exactly `A` or `B` is treated as missing.
+- Every storage access is wrapped in `try/catch`: a missing, blocked or throwing `localStorage` still yields a valid variant for that page view, it just is not remembered.
+- **Consent:** the European time-zone rule from `rsa-analytics.js` is copied into `rsa-signup.js` (the two files stay independent). In a European time zone without a `rsa_consent=granted` cookie, the visitor gets **no assignment and no storage**: they see A and their variant is `'none'`. Everyone else is assigned.
+- For QA the resolved value is exposed on `<html data-rsa-signup-variant="A|B|none">`. On `localhost` or a `file:` page, `?rsa_variant=A` / `?rsa_variant=B` forces a variant; it is ignored on real hosts and never stored.
+
+#### Sticky bar (variant B only)
+
+- The bar is fixed to the bottom of the viewport and appears only after the reader has scrolled **past 50%** of the document height. The listener is passive and throttled with `requestAnimationFrame`; it never appears on page load and never on a page too short to scroll.
+- It is **not a modal**: no overlay, no focus trap, no focus move. The rest of the page stays fully usable.
+- It is slim enough for Google's intrusive-interstitial guidance (about 79px, ~12% of a 360×640 viewport, under the 15% limit). `prefers-reduced-motion: reduce` removes the slide animation.
+- The close button (`aria-label="Dismiss sign-up bar"`, 44×44px) hides the bar and stores `rsa_signup_bar_dismissed_until` = now + 30 days. <kbd>Escape</kbd> also dismisses it while focus is inside the bar.
+- The bar stays hidden if `rsa_signup_bar_dismissed_until` is still in the future, or after a successful sign-up anywhere on the origin (`rsa_signup_done=1`). It also hides while the end-of-chapter card is in the viewport (`IntersectionObserver`, skipped when unsupported), so two forms are never shown on top of each other.
+- Labels and ids are unique per form, so the end card, margin box and bar can coexist on one page.
+
+#### Storage keys
+
+| Key | Storage | Value | Purpose |
+|---|---|---|---|
+| `rsa_signup_exp_<name>` | `localStorage` | `A` or `B` | Sticky experiment assignment. |
+| `rsa_signup_bar_dismissed_until` | `localStorage` | epoch ms | Bar stays hidden until this time (now + 30 days when dismissed). |
+| `rsa_signup_done` | `localStorage` | `1` | A successful sign-up on this origin; the bar never appears again. |
+
+#### Variant on every sign-up
+
+Every form (end card, margin box, bar) sends the active variant to Zoho in the **Signup variant** custom field, `VARIANT_FIELD = 'CONTACT_CF2'`, with the value `<experiment>:<variant>` (for example `ebook-bar-v1:B`, or `ebook-bar-v1:none` for a consent-region visitor without consent). The field is added only when an experiment is running; without `data-rsa-signup-experiment` the request body is byte-identical to v1.2.0. The GA4 `sign_up` event gains a `signup_variant` parameter with the same value.
+
 ### What the Visitor Sees
 
 A compact card with a heading, one line of copy, a labelled email field, an optional first-name field, a Subscribe button and a small Privacy link. On submit the component validates the address, disables the button, then shows the outcome inline in a polite live region:
@@ -90,11 +139,11 @@ A hidden honeypot field and a 2-second minimum fill time silently reject obvious
 
 ### GA4 `sign_up` Event
 
-On a successful **new** sign-up the component calls `gtag('event', 'sign_up', { method: 'zoho_campaigns', signup_site: <site> })` when `window.gtag` is available. Google Consent Mode already governs storage, so the component does not check consent itself. The email address and name are **never** sent to Google.
+On a successful **new** sign-up the component calls `gtag('event', 'sign_up', { method: 'zoho_campaigns', signup_site: <site> })` when `window.gtag` is available. When an A/B experiment is active it also adds `signup_variant: '<experiment>:<A|B|none>'`. Google Consent Mode already governs storage, so the component does not check consent itself. The email address and name are **never** sent to Google.
 
 ### Where the Contact Lands
 
-Contacts are added to the Zoho Campaigns list **"Rsquared Academy Updates"**, tagged with the site they signed up on in the **Signup site** field (`CONTACT_CF1`).
+Contacts are added to the Zoho Campaigns list **"Rsquared Academy Updates"**, tagged with the site they signed up on in the **Signup site** field (`CONTACT_CF1`). In an A/B experiment the **Signup variant** field (`CONTACT_CF2`, constant `VARIANT_FIELD`) carries `<experiment>:<variant>` so sign-ups can be counted per variant in Zoho.
 
 Pages that inject containers after load can call `window.RsaSignup.init()`; already-rendered containers are marked with `data-rsa-signup-ready` and skipped.
 
@@ -155,7 +204,14 @@ Header snippet content:
 <!-- sign-up sites only: -->
 <link rel="stylesheet" href="/site-kit/rsa-signup.css">
 <script src="/site-kit/rsa-signup.js" defer></script>
+<!-- Quarto eBooks only (v1.3.0): margin box + A/B sticky bar -->
+<script src="/site-kit/rsa-signup.js"
+        data-rsa-signup-quarto-margin
+        data-rsa-signup-experiment="ebook-bar-v1"
+        defer></script>
 ```
+
+Books replace the plain sign-up `<script>` with the eBook one (do not load `rsa-signup.js` twice).
 
 ### pkgdown Documentation Sites
 
@@ -216,15 +272,19 @@ The test suite validates:
 - Time zone to banner decision logic (`Europe/*`, Atlantic islands, overseas).
 - Root domain derivation (`blog.rsquaredacademy.com` &rarr; `.rsquaredacademy.com`, `localhost` &rarr; none).
 - Cookie parsing, formatting, and expiration.
+- v1.3.0 sign-up helpers: `assignVariant`, stored-variant reuse/invalid values, throwing storage, the consent-region `none` rule, `buildSignupBody` with and without `variant` (without = byte-identical to v1.2.0), 30-day dismissal arithmetic, and `pastScrollThreshold` (including short pages).
 
 ### Check Node.js Headless Loading
 ```bash
 node -e "require('./rsa-analytics.js')"
+node -e "require('./rsa-signup.js')"
 ```
-Must load cleanly without exceptions when run outside a browser environment.
+Both must load cleanly without exceptions when run outside a browser environment.
 
 ### Manual Verification
 Open `test/demo.html` in a web browser. Use Chrome DevTools &rarr; *Sensors* to simulate time zones (`London`, `Berlin`, `New York`, `Tokyo`) and verify banner behavior and opt-out interactions.
+
+For the eBook sign-up, open `test/signup-demo.html` from `localhost` or as a `file:` URL. It contains a fake `#quarto-margin-sidebar` and a long page. Check the compact box in the margin (desktop ≥992px), then scroll past 50% with `?rsa_variant=B` and verify the sticky bar, its close button (30-day dismissal) and <kbd>Escape</kbd>; `?rsa_variant=A` should show no bar. The resolved value is on `<html data-rsa-signup-variant="...">`.
 
 ---
 

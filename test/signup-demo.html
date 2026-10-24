@@ -5,6 +5,12 @@
   WARNING: Submitting any form below sends a REAL sign-up to Zoho
   Campaigns and triggers a REAL confirmation email to the address entered.
   Use an address you control.
+
+  v1.3.0 additions on this page:
+    - a fake #quarto-margin-sidebar, so the compact margin box renders
+    - a long page, so the variant-B sticky bar can appear past 50% scroll
+    - the script tag carries both opt-in attributes
+    - ?rsa_variant=A|B forces a variant on localhost/file: only (QA)
 -->
 <html lang="en">
 <head>
@@ -16,6 +22,9 @@
   <link rel="stylesheet" href="../rsa-signup.css">
 
   <style>
+    :root {
+      color-scheme: light dark;
+    }
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       line-height: 1.6;
@@ -30,26 +39,78 @@
         background-color: #0F172A;
       }
     }
+    .demo-layout {
+      max-width: 1120px;
+      margin: 0 auto;
+    }
     .container {
       max-width: 800px;
       margin: 0 auto;
+    }
+    @media (min-width: 992px) {
+      .demo-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 240px;
+        gap: 2rem;
+        align-items: start;
+      }
+      .container {
+        margin: 0;
+      }
+      #quarto-margin-sidebar {
+        position: sticky;
+        top: 1rem;
+      }
+    }
+    #quarto-margin-sidebar {
+      border-left: 1px solid rgba(127, 127, 127, 0.35);
+      padding-left: 1rem;
+      font-size: 0.875rem;
+    }
+    #quarto-margin-sidebar .toc-title {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.7;
+    }
+    #quarto-margin-sidebar ul {
+      margin: 0;
+      padding-left: 1rem;
     }
     h1 {
       margin: 0 0 0.5rem 0;
       color: #2563EB;
       font-size: 1.75rem;
     }
-    .warning {
-      border: 1px solid #FCA5A5;
-      background: #FEE2E2;
-      color: #991B1B;
+    h2 {
+      margin-bottom: 0.5rem;
+    }
+    .warning,
+    .note {
       border-radius: 8px;
       padding: 0.75rem 1rem;
       margin-bottom: 1.5rem;
       font-size: 0.9375rem;
     }
+    .warning {
+      border: 1px solid #FCA5A5;
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+    .note {
+      border: 1px solid #93C5FD;
+      background: #DBEAFE;
+      color: #1E3A8A;
+    }
+    code {
+      font-size: 0.875em;
+    }
     .spacer {
       margin-top: 2rem;
+    }
+    .filler p {
+      margin: 0 0 1rem 0;
     }
     /* Author-supplied styles for the "enhance mode" example below. The kit
        does not style or add classes to a form it enhances. */
@@ -100,64 +161,197 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Rsquared Site-Kit v1.2.0 Sign-up Demo</h1>
-    <p class="warning">
-      Submitting a form below sends a <strong>real</strong> sign-up to Zoho
-      Campaigns and a <strong>real</strong> confirmation email. Use an address
-      you control.
-    </p>
+  <div class="demo-layout">
+    <main class="container">
+      <h1>Rsquared Site-Kit v1.3.0 Sign-up Demo</h1>
+      <p class="warning">
+        Submitting a form below sends a <strong>real</strong> sign-up to Zoho
+        Campaigns and a <strong>real</strong> confirmation email. Use an address
+        you control.
+      </p>
 
-    <!-- Default container: site label derived from location, name field shown -->
-    <div data-rsa-signup>
-      <h2>Get updates from Rsquared Academy</h2>
-      <p>Fallback content shown only when JavaScript is disabled.</p>
-    </div>
+      <p class="note">
+        The script tag below enables the Quarto margin box and the
+        <code>ebook-bar-v1</code> experiment. The resolved variant is exposed on
+        <code>&lt;html data-rsa-signup-variant="A|B|none"&gt;</code>.
+        On <strong>localhost</strong> or a <strong>file:</strong> page you can
+        force a variant for QA with
+        <a href="?rsa_variant=A">?rsa_variant=A</a> or
+        <a href="?rsa_variant=B">?rsa_variant=B</a>; the override is ignored on
+        every real host.
+      </p>
 
-    <!-- Second container: name field hidden, explicit site label -->
-    <div class="spacer"
-         data-rsa-signup
-         data-name="off"
-         data-site="demo-2">
-      <h2>Subscribe (no name field)</h2>
-      <p>Fallback content shown only when JavaScript is disabled.</p>
-    </div>
+      <!-- Default container: site label derived from location, name field shown -->
+      <div data-rsa-signup data-site="demo-ebook">
+        <h2>Get updates from Rsquared Academy</h2>
+        <p>Fallback content shown only when JavaScript is disabled.</p>
+      </div>
 
-    <!-- Third example: enhance mode. The kit keeps this markup and the
-         .author-signup styles above; it only adds the submission logic.
-         rsa-signup.css is not needed for this form. -->
-    <div class="spacer">
-      <h2>Enhance mode</h2>
-      <form class="author-signup"
-            data-rsa-signup
-            data-site="demo-enhance"
-            novalidate>
-        <label for="enhance-email">Email address</label>
-        <input id="enhance-email"
-               name="email"
-               type="email"
-               autocomplete="email"
-               required>
+      <!-- Second container: name field hidden, explicit site label -->
+      <div class="spacer"
+           data-rsa-signup
+           data-name="off"
+           data-site="demo-2">
+        <h2>Subscribe (no name field)</h2>
+        <p>Fallback content shown only when JavaScript is disabled.</p>
+      </div>
 
-        <!-- Honeypot: hidden by the host page, the kit adds none in this mode -->
-        <div hidden>
-          <label for="enhance-website">Website</label>
-          <input id="enhance-website"
-                 name="website"
-                 type="text"
-                 tabindex="-1"
-                 autocomplete="off"
-                 data-rsa-signup-hp>
-        </div>
+      <!-- Third example: enhance mode. The kit keeps this markup and the
+           .author-signup styles above; it only adds the submission logic.
+           rsa-signup.css is not needed for this form. -->
+      <div class="spacer">
+        <h2>Enhance mode</h2>
+        <form class="author-signup"
+              data-rsa-signup
+              data-site="demo-enhance"
+              novalidate>
+          <label for="enhance-email">Email address</label>
+          <input id="enhance-email"
+                 name="email"
+                 type="email"
+                 autocomplete="email"
+                 required>
 
-        <button type="submit">Subscribe</button>
+          <!-- Honeypot: hidden by the host page, the kit adds none in this mode -->
+          <div hidden>
+            <label for="enhance-website">Website</label>
+            <input id="enhance-website"
+                   name="website"
+                   type="text"
+                   tabindex="-1"
+                   autocomplete="off"
+                   data-rsa-signup-hp>
+          </div>
 
-        <p data-rsa-signup-status>No spam. Unsubscribe any time.</p>
-      </form>
-    </div>
+          <button type="submit">Subscribe</button>
+
+          <p data-rsa-signup-status>No spam. Unsubscribe any time.</p>
+        </form>
+      </div>
+
+      <!-- Long filler content: makes the page scrollable so variant B's bar
+           can appear after 50% of the document height. -->
+      <div class="filler spacer">
+        <h2>Long page fixture</h2>
+        <p>
+          This demo page is deliberately long. Scroll down past half of the
+          document height with variant B active and the slim sign-up bar slides
+          up from the bottom of the viewport. With variant A it never appears.
+        </p>
+        <p>
+          The bar is not a modal: the page stays usable, focus is never moved,
+          and Escape dismisses it only while focus is inside the bar. Closing it
+          stores a 30-day dismissal; a successful sign-up on this origin stops it
+          from ever showing again.
+        </p>
+
+        <h2>Section 2</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+          posuere erat a ante venenatis dapibus posuere velit aliquet. Cras
+          mattis consectetur purus sit amet fermentum. Donec id elit non mi porta
+          gravida at eget metus.
+        </p>
+        <p>
+          Nullam quis risus eget urna mollis ornare vel eu leo. Aenean lacinia
+          bibendum nulla sed consectetur. Vestibulum id ligula porta felis
+          euismod semper. Maecenas faucibus mollis interdum.
+        </p>
+
+        <h2>Section 3</h2>
+        <p>
+          Curabitur blandit tempus porttitor. Sed posuere consectetur est at
+          lobortis. Vivamus sagittis lacus vel augue laoreet rutrum faucibus
+          dolor auctor. Morbi leo risus, porta ac consectetur ac, vestibulum at
+          eros.
+        </p>
+        <p>
+          Etiam porta sem malesuada magna mollis euismod. Maecenas sed diam eget
+          risus varius blandit sit amet non magna. Donec ullamcorper nulla non
+          metus auctor fringilla.
+        </p>
+
+        <h2>Section 4</h2>
+        <p>
+          Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum
+          nibh, ut fermentum massa justo sit amet risus. Nullam id dolor id nibh
+          ultricies vehicula ut id elit. Duis mollis, est non commodo luctus,
+          nisi erat porttitor ligula, eget lacinia odio sem nec elit.
+        </p>
+        <p>
+          Cum sociis natoque penatibus et magnis dis parturient montes, nascetur
+          ridiculus mus. Vestibulum id ligula porta felis euismod semper. Aenean
+          eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum.
+        </p>
+
+        <h2>Section 5</h2>
+        <p>
+          Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
+          Donec sed odio dui. Nulla vitae elit libero, a pharetra augue. Cras
+          justo odio, dapibus ac facilisis in, egestas eget quam.
+        </p>
+        <p>
+          Sed posuere consectetur est at lobortis. Aenean lacinia bibendum nulla
+          sed consectetur. Donec id elit non mi porta gravida at eget metus.
+          Integer posuere erat a ante venenatis dapibus posuere velit aliquet.
+        </p>
+
+        <h2>Section 6</h2>
+        <p>
+          Maecenas faucibus mollis interdum. Vestibulum id ligula porta felis
+          euismod semper. Cras mattis consectetur purus sit amet fermentum.
+          Nullam quis risus eget urna mollis ornare vel eu leo.
+        </p>
+        <p>
+          Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Etiam
+          porta sem malesuada magna mollis euismod. Curabitur blandit tempus
+          porttitor. Sed posuere consectetur est at lobortis.
+        </p>
+
+        <h2>Section 7</h2>
+        <p>
+          Donec ullamcorper nulla non metus auctor fringilla. Fusce dapibus,
+          tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum
+          massa justo sit amet risus. Nullam id dolor id nibh ultricies vehicula
+          ut id elit.
+        </p>
+        <p>
+          Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget
+          lacinia odio sem nec elit. Cum sociis natoque penatibus et magnis dis
+          parturient montes, nascetur ridiculus mus.
+        </p>
+
+        <h2>Section 8 — the end of the chapter</h2>
+        <p>
+          The end-of-chapter card is the kit's normal render mode. When it is in
+          the viewport the sticky bar hides itself, so two forms are never shown
+          on top of each other.
+        </p>
+        <p>
+          Scroll back up and the bar can return (unless it was dismissed), as
+          long as the reader is still past the 50% threshold.
+        </p>
+      </div>
+    </main>
+
+    <!-- Fake Quarto margin sidebar. The script appends the compact sign-up
+         box here; rsa-signup.css hides it below 992px. -->
+    <aside id="quarto-margin-sidebar" aria-label="On this page">
+      <nav id="TOC" aria-label="Table of contents">
+        <h2 class="toc-title">On this page</h2>
+        <ul>
+          <li><a href="#top">Sign-up demo</a></li>
+          <li><a href="#long-page">Long page fixture</a></li>
+          <li><a href="#section-8">End of the chapter</a></li>
+        </ul>
+      </nav>
+    </aside>
   </div>
 
-  <!-- Rsquared Site-Kit Sign-up Script -->
-  <script src="../rsa-signup.js" defer></script>
+  <!-- Rsquared Site-Kit Sign-up Script — both v1.3.0 opt-in attributes -->
+  <script src="../rsa-signup.js"
+          data-rsa-signup-quarto-margin
+          data-rsa-signup-experiment="ebook-bar-v1"
+          defer></script>
 </body>
 </html>
