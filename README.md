@@ -291,3 +291,8 @@ For the eBook sign-up, open `test/signup-demo.html` from `localhost` or as a `fi
 ## 8. License
 
 MIT &copy; 2026 Rsquared Academy / Aravind Hebbali. See [`LICENSE`](./LICENSE).
+
+## Brand kit
+
+The [brand kit](brand/README.md) contains the approved logo, favicons, social image template, and shared brand tokens.
+
