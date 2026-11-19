@@ -12,7 +12,9 @@ The approved master is `_source/rsquared-logo.svg`; use the optimised `logo/rsqu
 | pkgdown navbar | Use `logo/rsquared-lockup.svg` on a light navbar; check it at the navbar's rendered size. |
 | Quarto book | Use the lockup in a light navbar; include `tokens/brand.scss` in the theme and publish the favicon files. |
 
-The lockup and OG SVGs use `"Schibsted Grotesk", "Segoe UI", system-ui, sans-serif` for headings; the OG tagline uses `"Source Sans 3", "Segoe UI", system-ui, sans-serif`. Install or load these fonts before rendering for the intended appearance; the PNGs may use available fallbacks. Replace the example tagline before publishing. The SVG wordmark is live text, so rendering varies with installed fonts.
+The lockup and OG wordmarks are outlined in Schibsted Grotesk at weight 700. The OG template tagline remains editable live text in `"Source Sans 3", "Segoe UI", system-ui, sans-serif`; load Source Sans 3 before exporting. The default PNG uses the website’s tagline.
+
+Fonts: Schibsted Grotesk + Source Sans 3 (SIL OFL), load from Google Fonts or self-host.
 
 Keep clear space around the logo of at least one quarter of its displayed width on every side. Use the standalone mark at 32 px or larger in normal layouts (the 16 px favicon is an exception); use the lockup at 160 px wide or larger and verify readability. Place it on a plain background with enough contrast, and preserve the supplied transparent margins.
 
